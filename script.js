@@ -3,21 +3,46 @@ var speedSlider = document.getElementById("speedSlide")
 var gridSlider = document.getElementById("gridSize")
 var drawer = canvas.getContext("2d");
 var width = 1000, height = 720;
-var gridSize = 10;
+var gridSize = 20;
 
-var nXCells = (width+gridSize)/gridSize;
-var nYCells = (height+gridSize)/gridSize;
+var nXCells;
+var nYCells;
 
-gridSlider.oninput = () =>{
-    gridSize = gridSlider.value; 
-    nXCells = (width+gridSize)/gridSize;
-    nYCells = (height+gridSize)/gridSize;
+var running = true;
+
+let x, y;
+var cellPosition;
+var cellSpeed = 1;
+var xCoeff, yCoeff;
+init();
+
+gridSlider.onchange = () =>{
+    running = false;
+    gridSize = parseInt(gridSlider.value);
+    init();
+}
+
+speedSlider.oninput = () =>{
+    cellSpeed = speedSlider.value;
 }
 
 
-let x = 0, y = 0;
+function init(){
+    drawer.fillStyle = "#73e065";
 
-drawer.fillStyle = "#73e065";
+    nXCells = (width+gridSize)/gridSize;
+    nYCells = (height+gridSize)/gridSize;
+    console.log(nXCells);
+
+    x = 0, y = 0;
+    cellPosition = getGridPos(nXCells/2, nYCells/2);
+    xCoeff = 1;
+    yCoeff = 1;
+
+    running = true;
+    window.requestAnimationFrame(renderLoop);
+}
+
 
 function drawLine(startX, startY, x2, y2)
 {
@@ -58,28 +83,13 @@ function drawGrid()
     y = 0;
 }
 
-var cellPosition = getGridPos(0, nYCells/2);
-var xCoeff = 1;
-var yCoeff = 1;
-var cellSpeed = 0.1;
 
-speedSlider.oninput = () =>{
-    cellSpeed = speedSlider.value;
-}
-
-window.requestAnimationFrame(renderLoop);
 function renderLoop()
 {
     drawer.clearRect(0, 0, width, height);
 
     drawGrid();
     drawGridRect(cellPosition.x, cellPosition.y);
-    drawGridRect(0, 10);
-    drawGridRect(0, 11);
-    drawGridRect(0, 12);
-    drawGridRect(0, 13);
-    drawGridRect(0, 14);
-    drawGridRect(0, 15);
 
     cellPosition.x += xCoeff * cellSpeed;
     cellPosition.y += yCoeff * cellSpeed;
@@ -94,7 +104,11 @@ function renderLoop()
         yCoeff = -(yCoeff);
     }
 
-    window.requestAnimationFrame(renderLoop);
+    if(running){
+        window.requestAnimationFrame(renderLoop);
+    }else{
+        drawer.clearRect(0, 0, width, height);
+    }
 }
 
 
