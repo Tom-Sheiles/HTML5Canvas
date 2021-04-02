@@ -2,8 +2,12 @@
     display: flex;
     justify-content: space-between;
     margin-left: 2rem;
-    
 }
+
+.speedSlide{
+    direction: rtl;
+}
+
 canvas{
     border: 1px solid black;
 }

@@ -5,6 +5,8 @@ var drawer = canvas.getContext("2d");
 var width = 1000, height = 720;
 var gridSize = 20;
 
+var lastUpdate = Date.now();
+
 var nXCells;
 var nYCells;
 
@@ -12,7 +14,7 @@ var running = true;
 
 let x, y;
 var cellPosition;
-var cellSpeed = 1;
+var frameSpeed = 0.1;
 var xCoeff, yCoeff;
 init();
 
@@ -23,7 +25,7 @@ gridSlider.onchange = () =>{
 }
 
 speedSlider.oninput = () =>{
-    cellSpeed = speedSlider.value;
+    frameSpeed = speedSlider.value;
 }
 
 
@@ -32,7 +34,6 @@ function init(){
 
     nXCells = (width+gridSize)/gridSize;
     nYCells = (height+gridSize)/gridSize;
-    console.log(nXCells);
 
     x = 0, y = 0;
     cellPosition = getGridPos(nXCells/2, nYCells/2);
@@ -40,6 +41,7 @@ function init(){
     yCoeff = 1;
 
     running = true;
+    drawGrid();
     window.requestAnimationFrame(renderLoop);
 }
 
@@ -83,25 +85,35 @@ function drawGrid()
     y = 0;
 }
 
-
+var ticks = 0;
 function renderLoop()
 {
-    drawer.clearRect(0, 0, width, height);
+    let now = Date.now();
+    let delta = now - lastUpdate;
+    delta /= 100;
+    lastUpdate = now;
 
-    drawGrid();
-    drawGridRect(cellPosition.x, cellPosition.y);
+    ticks += delta;
+    if(ticks >= frameSpeed){
 
-    cellPosition.x += xCoeff * cellSpeed;
-    cellPosition.y += yCoeff * cellSpeed;
+        drawer.clearRect(0, 0, width, height);
 
-    if(parseInt(cellPosition.x) >= nXCells-1 || parseInt(cellPosition.x) <= -1)
-    {
-        xCoeff = -(xCoeff);
-    }
+        drawGrid();
+        drawGridRect(cellPosition.x, cellPosition.y);
 
-    if(parseInt(cellPosition.y) >= nYCells-1 || parseInt(cellPosition.y) <= -1)
-    {
-        yCoeff = -(yCoeff);
+        cellPosition.x += xCoeff;
+        cellPosition.y += yCoeff;
+
+        if(parseInt(cellPosition.x) >= nXCells-1 || parseInt(cellPosition.x) <= -1)
+        {
+            xCoeff = -(xCoeff);
+        }
+
+        if(parseInt(cellPosition.y) >= nYCells-1 || parseInt(cellPosition.y) <= -1)
+        {
+            yCoeff = -(yCoeff);
+        }
+        ticks = 0;
     }
 
     if(running){
@@ -109,6 +121,7 @@ function renderLoop()
     }else{
         drawer.clearRect(0, 0, width, height);
     }
+    
 }
 
 
